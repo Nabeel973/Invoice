@@ -107,7 +107,6 @@
                 $(tds).each(function () {
                     counter++;
                     if (counter == 1) {
-                        console.log($(this).text());
                         $.ajax({
                             url: '{!! route('invoice.image') !!}',
                             method: 'POST',
@@ -116,11 +115,13 @@
                                 'id': $(this).text(),
                             }
                         }).done(function(data){
-                            var image = '<img src="' + data + '" style="width: 100%; max-width: 200px;" />';
+                           if(data){
+                               var image = '<img src="' + data + '" style="width: 100%; max-width: 200px;" />';
 
-                            $('#picture_modal .modal-body').html(image);
+                               $('#picture_modal .modal-body').html(image);
 
-                            $('#picture_modal').modal('show');
+                               $('#picture_modal').modal('show');
+                           }
                         });
                     }
                 });

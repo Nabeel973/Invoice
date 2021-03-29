@@ -21,7 +21,7 @@ class InvoiceController extends Controller
     {
         $rules = [
             'supplier_name' => 'required|max:100',
-            'amount' => 'required',
+            'amount' => 'required|integer',
             'delivery_date' => 'required',
             'invoice_number' => 'required|max:20',
             'submit_by' => 'required|max:20',
@@ -98,17 +98,16 @@ class InvoiceController extends Controller
                    }
 
                    return $dropdown;
-
            })
           ;
         return $datatables->make(true);
     }
 
-    public function image(Request $request){
-     $invoice = Invoice::find($request->id);
-         if($invoice){
-            /* return response(public_path('images/'.$invoice->image));*/
-             return asset('images/' . $invoice->image) ;
-         }
+    public function image(Request $request)
+    {
+        $invoice = Invoice::find($request->id);
+        if ($invoice->image != null) {
+            return asset('images/' . $invoice->image);
+        }
     }
 }

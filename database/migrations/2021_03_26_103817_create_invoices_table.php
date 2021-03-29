@@ -18,7 +18,7 @@ class CreateInvoicesTable extends Migration
             $table->string('supplier_name', 100);
             $table->string('invoice_no', 20);
             $table->date('delivery_date');
-            $table->string('amount');
+            $table->integer('amount');
             $table->integer('items_delivered');
             $table->string('image')->nullable();
             $table->string('submitted_by',500);
