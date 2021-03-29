@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Invoice;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Image;
 use Yajra\DataTables\DataTables;
+use File;
 
 class InvoiceController extends Controller
 {
@@ -18,6 +21,8 @@ class InvoiceController extends Controller
     {
         $rules = [
             'supplier_name' => 'required|max:100',
+            'amount' => 'required',
+            'delivery_date' => 'required',
             'invoice_number' => 'required|max:20',
             'submit_by' => 'required|max:20',
             'image' => 'image|mimes:jpeg,png,jpg|max:2048',
@@ -30,6 +35,8 @@ class InvoiceController extends Controller
             'supplier_name.max' => 'Supplier Name cannot be long then 100 characters',
             'invoice_number.max' => 'Number cannot be long then 20 characters',
             'submit_by.max' => 'Name cannot be long then 20 characters',
+            'delivery_date.required' => 'Date Cannot be null',
+            'amount.required' => 'Amount Cannot be null',
         ];
 
         $validate = Validator::make($request->all(), $rules, $messages);
@@ -49,10 +56,20 @@ class InvoiceController extends Controller
 
         if($request->hasFile('image')){
 
-            $invoice->image = $invoice->id;
+            $image =$request->file('image');
+            $filenamewithextension = $image->getClientOriginalName();
+            $filename = pathinfo($filenamewithextension, PATHINFO_FILENAME);
+            $extension = $request->file('image')->getClientOriginalExtension();
+            $filenametostore = $invoice->id. '.' . $extension;
+
+            $img = Image::make($image)->resize(500, 500, function($constraint) {
+                $constraint->aspectRatio();
+            })->save(public_path('images/'.$filenametostore));
+            $invoice->image = $filenametostore;
             $invoice->save();
+
         }
-        return view('invoices.report')->with('success', 'Record Added Successfully');
+        return redirect()->route('invoice.report')->with('success', 'Record Added Successfully');
 
     }
 
@@ -69,15 +86,29 @@ class InvoiceController extends Controller
             ->editColumn('items_delivered', function ($invoice) {
                 return (($invoice->items_delivered) ? 'Yes' : 'No');
             })
-            ->editColumn('image', function ($invoice) {
+           ->addColumn("action", function ($result) {
 
-                $image = '';
-                if($invoice->image != null){
-                    $image .= '<div class="text-center"><button type="button" class="btn btn-primary btn-sm picture" data-link="' .'public/img/'.$invoice->image . '"><i class="la la-image"></i> View</button></div>';
+                   $dropdown = '';
 
-                    return $image;
-                }
-            });
+                   if($result->image != null){
+                   $dropdown .= '<button type="button" class="btn btn-primary view_image" rel="view_image" ><div class="align-items-center">View</div></button>';
+                   }
+                   else{
+                       $dropdown.='-';
+                   }
+
+                   return $dropdown;
+
+           })
+          ;
         return $datatables->make(true);
+    }
+
+    public function image(Request $request){
+     $invoice = Invoice::find($request->id);
+         if($invoice){
+            /* return response(public_path('images/'.$invoice->image));*/
+             return asset('images/' . $invoice->image) ;
+         }
     }
 }

@@ -37,7 +37,7 @@
         </div>
     @endif
     <h3 class="text-center">INVOICE</h3>
-    <form action="{{route('invoice.submit')}}" method="post" enctype="multipart/form-data">
+    <form action="{{route('invoice.submit')}}" method="post" enctype="multipart/form-data" autocomplete="off">
         @csrf
         @method('POST')
         <div class="row">
@@ -105,8 +105,4 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.26.0/moment.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.5.0/js/bootstrap-datepicker.js"></script>
 
-<script type="javascript">
-    $(document).ready(function(){
-    });
 
-</script>
